@@ -5,7 +5,7 @@ using System.IO;
 
 namespace CheckInProgram
 {
-    class Program //TODO: Handle input exceptions
+    class CheckInProgram //TODO: Handle input exceptions
     {
         private User LOGGED_IN_USER;
         private bool LOGGED_IN;
@@ -16,7 +16,7 @@ namespace CheckInProgram
 
         static void Main(string[] args)
         {
-            Program program = new Program();
+            CheckInProgram program = new CheckInProgram();
             program.MenuLoop();
         }
 
@@ -29,7 +29,7 @@ namespace CheckInProgram
                 if (!LOGGED_IN)
                     Console.WriteLine("1. Login\n2. Create user\n3. Exit");
                 else
-                    Console.WriteLine("1. Print something funny\n2. View all users\n3. Log out");
+                    Console.WriteLine("1. Print something funny\n2. View all users\n3. View my timestamps\n4.View all timestamps\n3. Log out");
 
                 int choice = GetNumberInput();
                 Choose(choice);
