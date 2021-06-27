@@ -13,7 +13,7 @@ namespace CheckInProgram
 
             using (StreamWriter sw = new StreamWriter(filePath, append: true))
             {
-                sw.Write(text);
+                sw.WriteLine(text);
             }
 
             return true;

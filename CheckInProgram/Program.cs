@@ -5,7 +5,7 @@ using System.IO;
 
 namespace CheckInProgram
 {
-    class Program
+    class Program //TODO: Handle input exceptions
     {
         private bool LOGGED_IN;
         private bool CONTINUE_PROGRAM = true;
@@ -16,22 +16,12 @@ namespace CheckInProgram
             program.MenuLoop();
         }
 
-        public static void InitiateUsers()
-        {
-            string[] jsonStrings = ObjectParser.GetJsonsFromObjects(new User[] { new User("daniella", "password"), new User("joppe", "poppe") });
-            try
-            {
-                FileSaver.SaveText(jsonStrings, filePath);
-            }
-            catch (FileNotFoundException)
-            {
-                Console.WriteLine("File not found, cannot create users");
-            }
-        }
         public void MenuLoop()
         {
             while (CONTINUE_PROGRAM)
             {
+                ChangeTextColor(ConsoleColor.Blue);
+
                 if (!LOGGED_IN)
                     Console.WriteLine("1. Login\n2. Create user\n3. Exit");
                 else
@@ -71,7 +61,7 @@ namespace CheckInProgram
             List<User> users = Persister.GetObjects();
             foreach (User user in users)
             {
-                Console.WriteLine(user);
+                Console.WriteLine(user.ToString());
             }
         }
         private static IPersister<User> Persister = new FileUserPersister();
@@ -97,11 +87,20 @@ namespace CheckInProgram
 
             LOGGED_IN = Login.TryLogin(userName, password);
 
+            Console.Clear();
+
             if (!LOGGED_IN)
+            {
+                ChangeTextColor(ConsoleColor.Red);
                 Console.WriteLine("Login failed.");
+
+            }
+
+
         }
-        public string GetInput(string command)
+        public string GetInput(string command, ConsoleColor color = ConsoleColor.Green)
         {
+            ChangeTextColor(color);
             Console.WriteLine($"{command}:");
             return Console.ReadLine();
         }
@@ -109,6 +108,11 @@ namespace CheckInProgram
         public int GetNumberInput()
         {
             return Int32.Parse(Console.ReadLine().Trim());
+        }
+
+        public void ChangeTextColor(ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
         }
     }
 }

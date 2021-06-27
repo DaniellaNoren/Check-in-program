@@ -1,20 +1,19 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CheckInProgram
 {
-    public class ObjectParser
+    public class ObjectParser  //TODO: Handle exceptions
     {
         public static string GetJsonFromObject(object objToSave)
         {
             return JsonConvert.SerializeObject(objToSave);
         }
 
-        public static object GetObjectFromJson(string jsonString)
+        public static object GetObjectFromJson<T>(string jsonString)
         {
-            return JsonConvert.DeserializeObject(jsonString);
+            T t = JsonConvert.DeserializeObject<T>(jsonString.Trim());
+            return t;
         }
 
         public static string[] GetJsonsFromObjects(object[] objectsToSave)
@@ -28,16 +27,16 @@ namespace CheckInProgram
             }
 
             return jsonStrings;
-        }  
-        
-        public static object[] GetObjectsFromJsons(string[] jsonStrings)
+        }
+
+        public static T[] GetObjectsFromJsons<T>(string[] jsonStrings)
         {
             int arrLength = jsonStrings.Length;
-            object[] objects = new object[arrLength];
+            T[] objects = new T[arrLength];
 
             for (int i = 0; i < arrLength; i++)
             {
-                objects[i] = GetObjectFromJson(jsonStrings[i]);
+                objects[i] = (T)GetObjectFromJson<T>(jsonStrings[i]);
             }
 
             return objects;

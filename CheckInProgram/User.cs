@@ -25,6 +25,11 @@ namespace CheckInProgram
             this.Id = (++shared_id).ToString();
         }
 
+        public override string ToString()
+        {
+            return $"Username: {UserName}, Id: {Id}";
+        }
+
     }
 
     public class Login
@@ -42,13 +47,7 @@ namespace CheckInProgram
         }
         public static User LookupUser(string username)
         {
-            try
-            {
-               return Persister.GetObject($"UserName\":\"{username}\"");
-            }catch(Exception)
-            {
-                return new User("", "");
-            }
+            return Persister.GetObject($"\"UserName\":\"{username}\"");
         }
     }
 }
