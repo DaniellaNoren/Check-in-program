@@ -21,7 +21,13 @@ namespace CheckInProgram
 
         private static void CheckIfFileExists(string filePath)
         {
-            if (!File.Exists(filePath)) throw new FileNotFoundException();
+            if (!File.Exists(filePath))
+            {
+                using (FileStream fs = new FileStream(filePath, FileMode.CreateNew))
+                {
+                    
+                }
+            }
         }
         public static bool SaveText(string[] text, string filePath)
         {

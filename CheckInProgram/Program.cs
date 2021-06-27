@@ -7,8 +7,12 @@ namespace CheckInProgram
 {
     class Program //TODO: Handle input exceptions
     {
+        private User LOGGED_IN_USER;
         private bool LOGGED_IN;
         private bool CONTINUE_PROGRAM = true;
+
+        private static readonly IPersister<TimeStamp> timeStampPersister = new FileTimeStampPersister();
+        private static IPersister<User> userPersister = new FileUserPersister();
 
         static void Main(string[] args)
         {
@@ -50,21 +54,58 @@ namespace CheckInProgram
                 {
                     case 1: Console.WriteLine("Something funny!"); break;
                     case 2: ViewAllUsers(); break;
-                    case 3: Console.WriteLine("Logging out... "); LOGGED_IN = false; break;
+                    case 3: ViewAllTimeStamps(); break;
+                    case 4: ViewMyTimeStamps(); break;
+                    case 5: CheckOut(); break;
                     default: break;
                 }
             }
         }
 
+        private void ViewMyTimeStamps()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ViewAllTimeStamps()
+        {
+            throw new NotImplementedException();
+        }
+
+        
+
+        private TimeStamp CreateTimeStamp()
+        {
+            ChangeTextColor(ConsoleColor.Yellow);
+            Console.WriteLine("Creating timestamp");
+            TimeStamp timeStamp = new TimeStamp(DateTime.Now);
+            LOGGED_IN_USER.AddTimeStamp(timeStamp);
+          
+            return timeStamp;
+        }
+
+        private void CheckOut()
+        {
+            TimeStamp timeStamp = LOGGED_IN_USER.TimeStamps[^1];
+            timeStamp.CheckOut = DateTime.Now;
+            LOGGED_IN = false;
+            LOGGED_IN_USER = null;
+
+            timeStampPersister.SaveObject(timeStamp);
+
+            ChangeTextColor(ConsoleColor.Yellow);
+            Console.WriteLine("Checking out.");
+            Console.WriteLine("Logging out.");
+
+        }
         private void ViewAllUsers()
         {
-            List<User> users = Persister.GetObjects();
+            List<User> users = userPersister.GetObjects();
             foreach (User user in users)
             {
                 Console.WriteLine(user.ToString());
             }
         }
-        private static IPersister<User> Persister = new FileUserPersister();
         public User CreateUser()
         {
             string userName = GetInput("Username");
@@ -74,7 +115,7 @@ namespace CheckInProgram
             if (password.Equals(password2))
             {
                 User user = new User(userName, password);
-                Persister.SaveObject(user);
+                userPersister.SaveObject(user);
                 return user;
             }
 
@@ -85,17 +126,21 @@ namespace CheckInProgram
             string userName = GetInput("Username");
             string password = GetInput("Password");
 
-            LOGGED_IN = Login.TryLogin(userName, password);
-
-            Console.Clear();
-
-            if (!LOGGED_IN)
+            try
             {
+                User user = Login.TryLogin(userName, password);
+                LOGGED_IN = true;
+                LOGGED_IN_USER = user;
+                CreateTimeStamp();
+
+            }catch(Exception)
+            {
+                LOGGED_IN = false;
                 ChangeTextColor(ConsoleColor.Red);
                 Console.WriteLine("Login failed.");
-
             }
 
+            Console.Clear();
 
         }
         public string GetInput(string command, ConsoleColor color = ConsoleColor.Green)

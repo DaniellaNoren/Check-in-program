@@ -11,6 +11,7 @@ namespace CheckInProgram.Persists
         public User GetObject(string identifier)
         {
             string jsonString = FileSaver.GetLineFromFile(identifier, FILE_NAME);
+
             if (string.IsNullOrEmpty(jsonString))
                 return new User("", "");
 
