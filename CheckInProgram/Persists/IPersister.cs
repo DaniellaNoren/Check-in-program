@@ -11,6 +11,7 @@ namespace CheckInProgram
         public T GetObject(string identifier);
 
         public List<T> GetObjects();
+        public List<T> GetObjects(string identifier);
 
         public void DeleteObject(string identifier);
 

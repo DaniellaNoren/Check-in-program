@@ -25,7 +25,7 @@ namespace CheckInProgram
             {
                 using (FileStream fs = new FileStream(filePath, FileMode.CreateNew))
                 {
-                    
+
                 }
             }
         }
@@ -49,7 +49,7 @@ namespace CheckInProgram
             using (File.Create(filePath))
             {
             }
-            
+
         }
         public static void ReadFile(string filePath)
         {
@@ -72,7 +72,7 @@ namespace CheckInProgram
             string s = "";
             using (StreamReader sr = new StreamReader(filePath))
             {
-                while((s = sr.ReadLine()) != null)
+                while ((s = sr.ReadLine()) != null)
                 {
                     if (s.Contains(searchString))
                     {
@@ -83,6 +83,27 @@ namespace CheckInProgram
             }
 
             return s;
+        } 
+        public static string[] GetLinesFromFile(string searchString, string filePath)
+        {
+            string[] strings = new string[0];
+            int count = 0;
+            string s = "";
+            using (StreamReader sr = new StreamReader(filePath))
+            {
+                while ((s = sr.ReadLine()) != null)
+                {
+                    if (s.Contains(searchString))
+                    {
+                        Array.Resize(ref strings, strings.Length + 1);
+                        strings[count] = s;
+                        count++;
+                    }
+                    
+                }
+            }
+
+            return strings;
         }
         public static void ReplaceLine(string searchString, string replacementString, string filepath)
         {
@@ -97,24 +118,24 @@ namespace CheckInProgram
                         sw.WriteLine(replacementString);
                     }
                     else
-                        sw.WriteLine(line.Trim()); 
+                        sw.WriteLine(line.Trim());
                 }
             }
         }
         public static void RemoveLineFromFile(string searchString, string filePath)
         {
-           
+
             string[] tempFile = File.ReadAllText(filePath).Split('\n');
-            
+
             using (StreamWriter sw = new StreamWriter(filePath, append: false))
             {
-                for(int i = 0; i < tempFile.Length - 1; i++)
+                for (int i = 0; i < tempFile.Length - 1; i++)
                 {
                     if (!string.IsNullOrEmpty(tempFile[i]) && !tempFile[i].Contains(searchString))
                     {
                         sw.WriteLine(tempFile[i].Trim());
                     }
-                    
+
                 }
             }
 

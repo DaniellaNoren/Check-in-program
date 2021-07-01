@@ -1,4 +1,5 @@
 ﻿using CheckInProgram.Persists;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,24 +8,23 @@ namespace CheckInProgram
 {
     public class User
     {
-        private static int shared_id;
-
         private string userName;
         public string UserName { get { return userName; } set { userName = value; } }  //TODO: Regex. Check if Username is available?
 
         private string password;
         public string Password { get { return password; } set { password = value; } } //TODO: Don't store in string. Regex.
 
-        private string id;
-        public string Id { get { return id; } set { id = value; } }
+        private Guid id;
+        public Guid Id { get { return id; } set { id = value; } }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<TimeStamp> TimeStamps { get; set; }
 
         public User(string userName, string password)
         {
             this.Password = password;
             this.UserName = userName;
-            this.Id = (++shared_id).ToString();
+            this.Id = Guid.NewGuid();
         }
 
         public override string ToString()

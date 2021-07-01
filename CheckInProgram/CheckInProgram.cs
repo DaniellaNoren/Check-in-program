@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace CheckInProgram
 {
@@ -29,7 +30,7 @@ namespace CheckInProgram
                 if (!LOGGED_IN)
                     Console.WriteLine("1. Login\n2. Create user\n3. Exit");
                 else
-                    Console.WriteLine("1. Print something funny\n2. View all users\n3. View my timestamps\n4.View all timestamps\n3. Log out");
+                    Console.WriteLine("1. Print something funny\n2. View all users\n3. View timestamps\n4. Log out");
 
                 int choice = GetNumberInput();
                 Choose(choice);
@@ -54,25 +55,86 @@ namespace CheckInProgram
                 {
                     case 1: Console.WriteLine("Something funny!"); break;
                     case 2: ViewAllUsers(); break;
-                    case 3: ViewAllTimeStamps(); break;
-                    case 4: ViewMyTimeStamps(); break;
-                    case 5: CheckOut(); break;
+                    case 3: ViewTimeSpans(); break;
+                    case 4: CheckOut(); break;
                     default: break;
                 }
             }
         }
 
-        private void ViewMyTimeStamps()
+        private void LoopThroughList<T>(List<T> list)
         {
-            throw new NotImplementedException();
+            foreach (var item in list)
+            {
+                Console.WriteLine(item);
+            }
         }
 
-        private void ViewAllTimeStamps()
+        private void ViewUserTimeStamps(string userName)
         {
-            throw new NotImplementedException();
+
+            List<TimeStamp> timeStamps = timeStampPersister.GetObjects($"\"User\":{{\"UserName\":\"{userName}\"");
+            LoopThroughList(timeStamps);
+
+        }   
+        private void ViewUserTimeStamps()
+        {
+            Console.WriteLine("Which user's timestamps do you want to see?");
+            string userName = Console.ReadLine().Trim();
+
+            ViewUserTimeStamps(userName);
+
         }
 
-        
+        private void ViewTimeStampsBetweenTimeSpans(DateTime from, DateTime to)
+        {
+            List<TimeStamp> timeStamps = timeStampPersister.GetObjects()
+            .Where(ts => ts.CheckIn >= from && ts.CheckOut <= to).Select(ts => ts).ToList();
+
+            LoopThroughList(timeStamps);
+
+        }
+
+        private void ViewTimeStampsBetweenTimeSpans()
+        {
+            Console.WriteLine("Format: HH:mm:ss YYYY-dd-MM");
+            Console.WriteLine("From?");
+            string fromDate = Console.ReadLine();
+            DateTime from = DateTime.Parse(fromDate);
+            Console.WriteLine("To?");
+            string toDate = Console.ReadLine();
+            DateTime to = DateTime.Parse(toDate);
+
+            ViewTimeStampsBetweenTimeSpans(from, to);
+        }
+
+        private void ViewAllTimeSpans()
+        {
+            List<TimeStamp> timeStamps = timeStampPersister.GetObjects();
+            LoopThroughList(timeStamps);
+        }
+        private void ViewTimeSpans()
+        {
+            while (true)
+            {
+                Console.WriteLine("1. My timestamps\n 2. All timestamps\n3. Timestamps between dates\n4. Other users timespans\n5. Return");
+                int choice = GetNumberInput();
+
+                switch (choice)
+                {
+                    case 1: ViewUserTimeStamps(LOGGED_IN_USER.UserName); break;
+                    case 2: ViewAllTimeSpans(); break;
+                    case 3: ViewTimeStampsBetweenTimeSpans(); break;
+                    case 4: ViewUserTimeStamps(); break;
+                    case 5: return;
+                    default: Console.WriteLine("Invalid input"); break;
+                }
+            }
+           
+
+        }
+
+
 
         private TimeStamp CreateTimeStamp()
         {
@@ -80,7 +142,7 @@ namespace CheckInProgram
             Console.WriteLine("Creating timestamp");
             TimeStamp timeStamp = new TimeStamp(DateTime.Now);
             LOGGED_IN_USER.AddTimeStamp(timeStamp);
-          
+
             return timeStamp;
         }
 
@@ -101,10 +163,7 @@ namespace CheckInProgram
         private void ViewAllUsers()
         {
             List<User> users = userPersister.GetObjects();
-            foreach (User user in users)
-            {
-                Console.WriteLine(user.ToString());
-            }
+            LoopThroughList(users);
         }
         public User CreateUser()
         {
@@ -133,7 +192,8 @@ namespace CheckInProgram
                 LOGGED_IN_USER = user;
                 CreateTimeStamp();
 
-            }catch(Exception)
+            }
+            catch (Exception)
             {
                 LOGGED_IN = false;
                 ChangeTextColor(ConsoleColor.Red);

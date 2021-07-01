@@ -16,25 +16,29 @@ namespace CheckInProgram.Persists
             if (string.IsNullOrEmpty(jsonString))
                 return new TimeStamp(DateTime.Now, new User("", ""));
 
-            return (TimeStamp) ObjectParser.GetObjectFromJson<TimeStamp>(jsonString);
+            return (TimeStamp) ObjectParser.GetObjectFromJson<TimeStamp>(jsonString.Trim(), new TimeStampConverter());
         }
 
         public List<TimeStamp> GetObjects()
         {
             string[] jsonString = FileSaver.GetAllLinesFromFile(FILE_NAME);
 
-            List<TimeStamp> timeStamps = new List<TimeStamp>(ObjectParser.GetObjectsFromJsons<TimeStamp>(jsonString));
+            List<TimeStamp> timeStamps = new List<TimeStamp>(ObjectParser.GetObjectsFromJsons<TimeStamp>(jsonString, new TimeStampConverter()));
+            
+            return timeStamps;
+        } 
+        public List<TimeStamp> GetObjects(string identifier)
+        {
+            string[] jsonString = FileSaver.GetLinesFromFile(identifier, FILE_NAME);
+
+            List<TimeStamp> timeStamps = new List<TimeStamp>(ObjectParser.GetObjectsFromJsons<TimeStamp>(jsonString, new TimeStampConverter()));
 
             return timeStamps;
         }
 
         public void SaveObject(TimeStamp timeStamp)
-        {
-            JsonSerializerSettings settings = new JsonSerializerSettings();
-            settings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
-            settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            
-            string jsonString = ObjectParser.GetJsonFromObject(timeStamp, settings);
+        {   
+            string jsonString = ObjectParser.GetJsonFromObject(timeStamp, new TimeStampConverter());
             FileSaver.SaveText(jsonString, FILE_NAME);
         }
 

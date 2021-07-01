@@ -27,6 +27,15 @@ namespace CheckInProgram.Persists
             return users;
         }
 
+        public List<User> GetObjects(string identifier)
+        {
+            string[] jsonString = FileSaver.GetLinesFromFile(identifier, FILE_NAME);
+
+            List<User> users = new List<User>(ObjectParser.GetObjectsFromJsons<User>(jsonString));
+
+            return users;
+        }
+
         public void SaveObject(User user)
         {
             string jsonString = ObjectParser.GetJsonFromObject(user);
