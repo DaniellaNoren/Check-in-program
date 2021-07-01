@@ -19,16 +19,6 @@ namespace CheckInProgram
             return true;
         }
 
-        private static void CheckIfFileExists(string filePath)
-        {
-            if (!File.Exists(filePath))
-            {
-                using (FileStream fs = new FileStream(filePath, FileMode.CreateNew))
-                {
-
-                }
-            }
-        }
         public static bool SaveText(string[] text, string filePath)
         {
             CheckIfFileExists(filePath);
@@ -42,6 +32,16 @@ namespace CheckInProgram
             }
 
             return true;
+        }
+        private static void CheckIfFileExists(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                using (FileStream fs = new FileStream(filePath, FileMode.CreateNew))
+                {
+
+                }
+            }
         }
 
         public static void DeleteAllFromFile(string filePath)
@@ -67,6 +67,7 @@ namespace CheckInProgram
         {
             return File.ReadAllLines(filePath);
         }
+
         public static string GetLineFromFile(string searchString, string filePath)
         {
             string s = "";
@@ -124,7 +125,6 @@ namespace CheckInProgram
         }
         public static void RemoveLineFromFile(string searchString, string filePath)
         {
-
             string[] tempFile = File.ReadAllText(filePath).Split('\n');
 
             using (StreamWriter sw = new StreamWriter(filePath, append: false))

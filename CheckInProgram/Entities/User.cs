@@ -1,5 +1,6 @@
 ﻿using CheckInProgram.Persists;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,21 +18,35 @@ namespace CheckInProgram
         private Guid id;
         public Guid Id { get { return id; } set { id = value; } }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore]
         public List<TimeStamp> TimeStamps { get; set; }
 
-        public User(string userName, string password)
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, ItemConverterType = typeof(StringEnumConverter))]
+        public List<UserRole> UserRoles { get; set; }
+
+        public User()
+        {
+
+        }
+
+        public User(string userName, string password, List<UserRole> userRoles)
         {
             this.Password = password;
             this.UserName = userName;
             this.Id = Guid.NewGuid();
+            this.UserRoles = userRoles;
+        }
+
+        public User(string userName, string password) : this(userName, password, new List<UserRole>() { UserRole.User })
+        {
+
         }
 
         public override string ToString()
         {
             string userInfo = $"Username: {UserName}, Id: {Id}, ";
 
-            string timeStamps = "";
+            string timeStamps = "TimeStamps: ";
 
             if (TimeStamps != null)
             {
@@ -41,9 +56,30 @@ namespace CheckInProgram
                 }
 
             }
+            else
+            {
+                timeStamps += " [] ";
+            }
 
-            return userInfo + timeStamps;
+            string userRoles = ", Roles: ";
 
+            foreach (UserRole role in UserRoles)
+            {
+                userRoles += $"{role}, ";
+            }
+
+            return userInfo + timeStamps + userRoles;
+
+        }
+
+        public void AddRole(UserRole role)
+        {
+            this.UserRoles.Add(role);
+        }
+
+        public void RemoveRole(UserRole role)
+        {
+            this.UserRoles.Remove(role);
         }
 
         public void AddTimeStamp(TimeStamp timeStamp)
@@ -61,6 +97,10 @@ namespace CheckInProgram
             TimeStamps.Remove(timeStamp);
         }
 
+    }
+    public enum UserRole
+    {
+        User, Admin
     }
 
     public class Login

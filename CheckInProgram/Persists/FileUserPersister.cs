@@ -48,7 +48,8 @@ namespace CheckInProgram.Persists
 
         public void UpdateObject(User user, string identifier)
         {
-            throw new NotImplementedException();
+            string jsonString = ObjectParser.GetJsonFromObject(user);
+            FileSaver.ReplaceLine(identifier, jsonString, FILE_NAME);
         }
     }
 }
