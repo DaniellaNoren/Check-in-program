@@ -1,20 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace CheckInProgram
 {
     public class FileSaver
     {
+        private static AESHelper AESHelper = new AESHelper();
         public static bool SaveText(string text, string filePath)
         {
             CheckIfFileExists(filePath);
+            string[] file = GetAllLinesFromFile(filePath);
+            Array.Resize(ref file, file.Length + 1);
+            file[^1] = text;
 
-            using (StreamWriter sw = new StreamWriter(filePath, append: true))
-            {
-                sw.WriteLine(text);
-            }
+            AESHelper.EncryptStringsToFileWithAes(file, filePath);
 
             return true;
         }
@@ -23,24 +26,17 @@ namespace CheckInProgram
         {
             CheckIfFileExists(filePath);
 
-            using (StreamWriter sw = new StreamWriter(filePath, append: true))
-            {
-                foreach (string t in text)
-                {
-                    sw.WriteLine(t);
-                }
-            }
+            AESHelper.EncryptStringsToFileWithAes(text, filePath);
 
             return true;
         }
+
         private static void CheckIfFileExists(string filePath)
         {
             if (!File.Exists(filePath))
             {
-                using (FileStream fs = new FileStream(filePath, FileMode.CreateNew))
-                {
-
-                }
+                File.Create(filePath);
+               
             }
         }
 
@@ -51,94 +47,45 @@ namespace CheckInProgram
             }
 
         }
-        public static void ReadFile(string filePath)
-        {
-            string s;
-            using (StreamReader sr = new StreamReader(filePath))
-            {
-                while ((s = sr.ReadLine()) != null)
-                {
-                    Console.WriteLine(s);
-                }
-            }
-        }
 
         public static string[] GetAllLinesFromFile(string filePath)
         {
-            return File.ReadAllLines(filePath);
+            return AESHelper.DecryptFileWithAes(filePath).ToArray();
         }
 
         public static string GetLineFromFile(string searchString, string filePath)
         {
-            string s = "";
-            using (StreamReader sr = new StreamReader(filePath))
-            {
-                while ((s = sr.ReadLine()) != null)
-                {
-                    if (s.Contains(searchString))
-                    {
-                        sr.Dispose();
-                        return s;
-                    }
-                }
-            }
-
-            return s;
-        } 
+            List<string> decryptedLines = AESHelper.DecryptFileWithAes(filePath);
+            return decryptedLines.FirstOrDefault(str => str.Contains(searchString));
+        }
         public static string[] GetLinesFromFile(string searchString, string filePath)
         {
-            string[] strings = new string[0];
-            int count = 0;
-            string s = "";
-            using (StreamReader sr = new StreamReader(filePath))
-            {
-                while ((s = sr.ReadLine()) != null)
-                {
-                    if (s.Contains(searchString))
-                    {
-                        Array.Resize(ref strings, strings.Length + 1);
-                        strings[count] = s;
-                        count++;
-                    }
-                    
-                }
-            }
+            List<string> strings = AESHelper.DecryptFileWithAes(filePath);
 
-            return strings;
+            return strings.Where(str => str.Contains(searchString)).Select(str => str).ToArray();
+        
         }
-        public static void ReplaceLine(string searchString, string replacementString, string filepath)
-        {
-            string[] lines = GetAllLinesFromFile(filepath);
 
-            using (StreamWriter sw = new StreamWriter(filepath, append: false))
+        public static void ReplaceLine(string searchString, string replacementString, string filePath)
+        {
+            List<string> strings = AESHelper.DecryptFileWithAes(filePath);
+
+            string[] newStrings = strings.Select(str =>
             {
-                foreach (string line in lines)
-                {
-                    if (line.Contains(searchString))
-                    {
-                        sw.WriteLine(replacementString);
-                    }
-                    else
-                        sw.WriteLine(line.Trim());
-                }
-            }
+                if (str.Contains(searchString))
+                    return replacementString;
+                return str;
+            }).ToArray();
+
+            AESHelper.EncryptStringsToFileWithAes(newStrings, filePath);
+     
         }
         public static void RemoveLineFromFile(string searchString, string filePath)
         {
-            string[] tempFile = File.ReadAllText(filePath).Split('\n');
-
-            using (StreamWriter sw = new StreamWriter(filePath, append: false))
-            {
-                for (int i = 0; i < tempFile.Length - 1; i++)
-                {
-                    if (!string.IsNullOrEmpty(tempFile[i]) && !tempFile[i].Contains(searchString))
-                    {
-                        sw.WriteLine(tempFile[i].Trim());
-                    }
-
-                }
-            }
-
+            List<string> strings = AESHelper.DecryptFileWithAes(filePath);
+            string[] newStrings = strings.Where(str => !str.Contains(searchString))
+                .Select(str => str).ToArray();
+            AESHelper.EncryptStringsToFileWithAes(newStrings, filePath);
         }
     }
 

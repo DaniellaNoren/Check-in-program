@@ -20,6 +20,7 @@ namespace CheckInProgram
         static void Main(string[] args)
         {
             CheckInProgram program = new CheckInProgram();
+            
             program.MenuLoop();
         }
 
@@ -140,7 +141,7 @@ namespace CheckInProgram
 
                 switch (choice)
                 {
-                    case 1: GetTimeStamps(LOGGED_IN_USER.UserName); break;
+                    case 1: GetTimeStamps($"\"User\":{{\"UserName\":\"{LOGGED_IN_USER.UserName}\""); break;
                     case 2: ViewAllTimeSpans(); break;
                     case 3: ViewTimeStampsOfDate(); break;
                     case 4: ViewTimeStampsBetweenTimeSpans(); break;
@@ -154,7 +155,6 @@ namespace CheckInProgram
 
         }
 
-       
         private TimeStamp CreateTimeStamp()
         {
             ChangeTextColor(ConsoleColor.Yellow);
@@ -329,7 +329,7 @@ namespace CheckInProgram
         {
             ChangeTextColor(color);
             Console.WriteLine($"{command}:");
-            return GetInput(pattern);
+            return InputHandler.GetString("");
         }
 
 
