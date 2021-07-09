@@ -28,6 +28,10 @@ namespace CheckInProgram.Persists
                     timeStamp.User = serializer.Deserialize<User>(reader);
 
                 }
+                else if (reader.Value.Equals("Id"))
+                {
+                    timeStamp.guid = Guid.Parse(reader.ReadAsString());
+                }
             }
 
             return timeStamp;
@@ -46,6 +50,8 @@ namespace CheckInProgram.Persists
             writer.WriteToken(JsonToken.PropertyName, "UserName");
             writer.WriteToken(JsonToken.String, value.User.UserName);
             writer.WriteToken(JsonToken.EndObject);
+            writer.WriteToken(JsonToken.PropertyName, "Id");
+            writer.WriteToken(JsonToken.String, value.guid);
             writer.WriteToken(JsonToken.EndObject);
 
         }

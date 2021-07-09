@@ -7,10 +7,12 @@ namespace CheckInProgram.Cryptography
 {
     public class KeyHolder
     {
-        public static byte[] key { get; set; }
-        public static byte[] iv { get; set; }
-
-        public static byte[] entropy { get; set; }
+        public static byte[] Key { get { return key; } set { key = value; } }
+        private static byte[] key;
+        public static byte[] IV { get { return iv; } set { iv = value; } }
+        private static byte[] iv;
+        public static byte[] Entropy { get { return entropy; } set { entropy = value; } }
+        private static byte[] entropy;
 
         public static readonly string FILE_PATH = @"./key.txt";
 
@@ -18,11 +20,11 @@ namespace CheckInProgram.Cryptography
         {
             if (File.Exists(FILE_PATH)) return;
 
-            key = EncryptionHelper.GenerateKey(32);
-            iv = EncryptionHelper.GenerateKey(16);
-            entropy = EncryptionHelper.GenerateKey(16);
+            Key = EncryptionHelper.GenerateKey(32);
+            IV = EncryptionHelper.GenerateKey(16);
+            Entropy = EncryptionHelper.GenerateKey(16);
 
-            SaveKeyAndIv(key, iv, entropy);
+            SaveKeyAndIv(Key, IV, Entropy);
         }
 
         public static void ReadKeyAndIv()
@@ -39,10 +41,10 @@ namespace CheckInProgram.Cryptography
             }
 
             byte[] protectedKey = EncryptionHelper.GetByteFromBase64(base64protectedkey);
-            entropy = EncryptionHelper.GetByteFromBase64(base64entropy);
-            iv = EncryptionHelper.GetByteFromBase64(base64iv);
+            Entropy = EncryptionHelper.GetByteFromBase64(base64entropy);
+            IV = EncryptionHelper.GetByteFromBase64(base64iv);
 
-            key = EncryptionHelper.Unprotect(protectedKey, entropy);
+            Key = EncryptionHelper.Unprotect(protectedKey, Entropy);
         }
 
         public static void SaveKeyAndIv(byte[] key, byte[] iv, byte[] entropy)
@@ -53,7 +55,7 @@ namespace CheckInProgram.Cryptography
             string base64IV = EncryptionHelper.GetBase64String(iv);
             string base64Entropy = EncryptionHelper.GetBase64String(entropy);
 
-            using(StreamWriter sw = new StreamWriter(new FileStream(FILE_PATH, FileMode.OpenOrCreate), Encoding.UTF8))
+            using (StreamWriter sw = new StreamWriter(new FileStream(FILE_PATH, FileMode.OpenOrCreate), Encoding.UTF8))
             {
                 sw.WriteLine(base64key);
                 sw.WriteLine(base64Entropy);

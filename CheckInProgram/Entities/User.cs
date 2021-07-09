@@ -117,7 +117,7 @@ namespace CheckInProgram
             }
             else
             {
-                throw new Exception(); //TODO make better exception
+                throw new FailedLoginException("Username or password is wrong.");
             }
         }
 
@@ -129,5 +129,10 @@ namespace CheckInProgram
         {
             return Persister.GetObject($"\"UserName\":\"{username}\"");
         }
+    }
+
+    public class FailedLoginException : Exception
+    {
+        public FailedLoginException(string msg) : base(msg) { }
     }
 }

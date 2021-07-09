@@ -11,7 +11,7 @@ namespace CheckInProgram
         {
             string input = GetInput();
 
-            if (Regex.IsMatch(input, @"^\d*$"))
+            if (Regex.IsMatch(input, @"^\d+$"))
                 return Int32.Parse(input);
 
             throw new InvalidInputException("Invalid number");
@@ -23,7 +23,7 @@ namespace CheckInProgram
         {
             string input = GetInput();
 
-            if (Regex.IsMatch(input, @"^\d*(?:.\d*)+$"))
+            if (Regex.IsMatch(input, @"^\d+(?:.\d+)*$"))
                 return Int32.Parse(input);
 
             throw new InvalidInputException("Invalid number");

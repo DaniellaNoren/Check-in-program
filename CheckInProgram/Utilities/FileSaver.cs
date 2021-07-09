@@ -18,7 +18,7 @@ namespace CheckInProgram
             CheckIfFileExists(filePath);
 
             byte[] byteText = EncryptionHelper.GetByteFromString(text);
-            byte[] encryptedText = EncryptionHelper.Encrypt(byteText, KeyHolder.key, KeyHolder.iv);
+            byte[] encryptedText = EncryptionHelper.Encrypt(byteText, KeyHolder.Key, KeyHolder.IV);
             string base64text = EncryptionHelper.GetBase64String(encryptedText);
             using (StreamWriter sw = new StreamWriter(filePath, append: true, Encoding.UTF8))
             {
@@ -36,7 +36,7 @@ namespace CheckInProgram
             {
                 foreach (string t in text)
                 {
-                    byte[] encryptedText = EncryptionHelper.Encrypt(EncryptionHelper.GetByteFromString(t), KeyHolder.key, KeyHolder.iv);
+                    byte[] encryptedText = EncryptionHelper.Encrypt(EncryptionHelper.GetByteFromString(t), KeyHolder.Key, KeyHolder.IV);
                     sw.WriteLine(EncryptionHelper.GetBase64String(encryptedText));
                 }
             }
@@ -68,7 +68,7 @@ namespace CheckInProgram
 
             for (int i = 0; i < text.Length; i++)
             {
-                text[i] = EncryptionHelper.GetStringFromByte(EncryptionHelper.Decrypt(EncryptionHelper.GetByteFromBase64(text[i]), KeyHolder.key, KeyHolder.iv));
+                text[i] = EncryptionHelper.GetStringFromByte(EncryptionHelper.Decrypt(EncryptionHelper.GetByteFromBase64(text[i]), KeyHolder.Key, KeyHolder.IV));
             }
 
             return text;
@@ -85,7 +85,7 @@ namespace CheckInProgram
                 while ((s = sr.ReadLine()) != null)
                 {
                     byte[] encryptedStr = EncryptionHelper.GetByteFromBase64(s);
-                    string decryptedStr = EncryptionHelper.GetStringFromByte(EncryptionHelper.Decrypt(encryptedStr, KeyHolder.key, KeyHolder.iv));
+                    string decryptedStr = EncryptionHelper.GetStringFromByte(EncryptionHelper.Decrypt(encryptedStr, KeyHolder.Key, KeyHolder.IV));
 
                     if (decryptedStr.Contains(searchString))
                     {
@@ -108,7 +108,7 @@ namespace CheckInProgram
                 while ((s = sr.ReadLine()) != null)
                 {
                     byte[] encryptedStr = EncryptionHelper.GetByteFromBase64(s);
-                    string decryptedStr = EncryptionHelper.GetStringFromByte(EncryptionHelper.Decrypt(encryptedStr, KeyHolder.key, KeyHolder.iv));
+                    string decryptedStr = EncryptionHelper.GetStringFromByte(EncryptionHelper.Decrypt(encryptedStr, KeyHolder.Key, KeyHolder.IV));
 
                     if (decryptedStr.Contains(searchString))
                     {
@@ -138,11 +138,11 @@ namespace CheckInProgram
                 while ((s = sr.ReadLine()) != null)
                 {
                     byte[] encryptedLine = EncryptionHelper.GetByteFromBase64(s);
-                    string decryptedLine = EncryptionHelper.GetStringFromByte(EncryptionHelper.Decrypt(encryptedLine, KeyHolder.key, KeyHolder.iv));
+                    string decryptedLine = EncryptionHelper.GetStringFromByte(EncryptionHelper.Decrypt(encryptedLine, KeyHolder.Key, KeyHolder.IV));
 
                     if (decryptedLine.Contains(searchString))
                     {
-                        encryptedLine = EncryptionHelper.Encrypt(EncryptionHelper.GetByteFromString(replacementString), KeyHolder.key, KeyHolder.iv);
+                        encryptedLine = EncryptionHelper.Encrypt(EncryptionHelper.GetByteFromString(replacementString), KeyHolder.Key, KeyHolder.IV);
                         string base64 = EncryptionHelper.GetBase64String(encryptedLine);
                         sw.WriteLine(base64);
                     }
@@ -175,7 +175,7 @@ namespace CheckInProgram
                 while ((s = sr.ReadLine()) != null)
                 {
                     byte[] encryptedLine = EncryptionHelper.GetByteFromBase64(s);
-                    string decryptedLine = EncryptionHelper.GetStringFromByte(EncryptionHelper.Decrypt(encryptedLine, KeyHolder.key, KeyHolder.iv));
+                    string decryptedLine = EncryptionHelper.GetStringFromByte(EncryptionHelper.Decrypt(encryptedLine, KeyHolder.Key, KeyHolder.IV));
 
                     if (!decryptedLine.Contains(searchString))
                     {
