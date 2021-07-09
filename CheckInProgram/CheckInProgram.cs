@@ -1,4 +1,5 @@
-﻿using CheckInProgram.Persists;
+﻿using CheckInProgram.Cryptography;
+using CheckInProgram.Persists;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,6 +20,8 @@ namespace CheckInProgram
 
         static void Main(string[] args)
         {
+            KeyHolder.GenerateKeyIVAndEntropy();
+            KeyHolder.ReadKeyAndIv();
             CheckInProgram program = new CheckInProgram();
             
             program.MenuLoop();
@@ -238,7 +241,7 @@ namespace CheckInProgram
                 while (keepEditing)
                 {
                     Console.WriteLine($"What do you want to do with {user.UserName}?");
-                    Console.WriteLine("1. Edit username\n\n2. Edit password\n3. Edit roles\n4. Delete User\n5. Save\n6. Return without saving");
+                    Console.WriteLine("1. Edit username\n2. Edit password\n3. Edit roles\n4. Delete User\n5. Save\n6. Return without saving");
                     int choice = InputHandler.GetInt();
 
                     switch (choice)
