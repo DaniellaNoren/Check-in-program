@@ -128,7 +128,7 @@ namespace CheckInProgram
         private void ViewTimeStampsOfDate()
         {
 
-            string date = GetInput("What day's timestamps do you want to see?"); //TODO Check that only YYYY-mm-dd is entered
+            string date = GetInput("What day's timestamps do you want to see? (YYYY-mm-dd)", pattern: "^20[2-9][0-9]-[0-1][1-9]-[0-3][0-9]$"); 
 
             ViewTimeStampsBetweenTimeSpans(DateTime.Parse(date), DateTime.Parse(date).AddHours(23).AddMinutes(59));
         }
@@ -144,10 +144,11 @@ namespace CheckInProgram
 
         private void ViewTimeStampsBetweenTimeSpans()
         {
+            string datePattern = "^[0-5][0-5]:[0-5][0-5]:[0-5][0-5] 20[2-9][0-9]-[0-1][1-9]-[0-3][0-9]$";
             Console.WriteLine("Format: HH:mm:ss YYYY-dd-MM");
-            string fromDate = GetInput("From");
+            string fromDate = GetInput("From", pattern: datePattern);
             DateTime from = DateTime.Parse(fromDate);
-            string toDate = GetInput("To");
+            string toDate = GetInput("To", pattern: datePattern);
             DateTime to = DateTime.Parse(toDate);
 
             ViewTimeStampsBetweenTimeSpans(from, to);
@@ -413,13 +414,14 @@ namespace CheckInProgram
         public string GetInput(string command, ConsoleColor color = ConsoleColor.Green, string pattern = "")
         {
             ChangeTextColor(color);
-            Console.WriteLine($"{command}:");
             string input;
 
             while (true)
             {
                 try
                 {
+                    Console.WriteLine($"{command}:");
+
                     input = InputHandler.GetString(pattern);
                     break;
                 }
