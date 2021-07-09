@@ -16,14 +16,15 @@ namespace CheckInProgram
 
         private static readonly IPersister<TimeStamp> timeStampPersister = new FileTimeStampPersister();
         private static IPersister<User> userPersister = new FileUserPersister();
-        
+
 
         static void Main(string[] args)
         {
             KeyHolder.GenerateKeyIVAndEntropy();
             KeyHolder.ReadKeyAndIv();
+
             CheckInProgram program = new CheckInProgram();
-            
+
             program.MenuLoop();
         }
 
@@ -34,11 +35,11 @@ namespace CheckInProgram
                 ChangeTextColor(ConsoleColor.Blue);
 
                 if (!LOGGED_IN)
-                    Console.WriteLine("1. Login\n2. Create user\n3. Exit");
+                    Console.WriteLine("1. Login\n2. Create user\n3. Create default admin\n4. Exit");
                 else
                     Console.WriteLine("1. Print something funny\n2. View all users\n3. View timestamps\n4. Log out");
 
-                int choice = InputHandler.GetInt();
+                int choice = GetNumberInput("");
                 Choose(choice);
             }
         }
@@ -50,8 +51,15 @@ namespace CheckInProgram
                 switch (choice)
                 {
                     case 1: TryToLogin(); break;
-                    case 2: CreateUser(); break;
-                    case 3: Console.WriteLine("Bye!"); CONTINUE_PROGRAM = false; break;
+                    case 2:
+                        {
+                            User user = CreateUser();
+                            LOGGED_IN_USER = user;
+                            LOGGED_IN = true;
+                        }
+                        break;
+                    case 3: CreateDefaultAdmin(); break;
+                    case 4: Console.WriteLine("Bye!"); CONTINUE_PROGRAM = false; break;
                     default: break;
                 }
             }
@@ -66,6 +74,22 @@ namespace CheckInProgram
                     default: break;
                 }
             }
+        }
+
+        private void CreateDefaultAdmin()
+        {
+            if(GetUser("admin") == null)
+            {
+                User admin = new User("admin", "admin", new List<UserRole>() { UserRole.User, UserRole.Admin });
+                userPersister.SaveObject(admin);
+                Console.WriteLine("Admin created");
+                Console.WriteLine(admin.ToString());
+            }
+            else
+            {
+                Console.WriteLine("Admin already exists. Username: 'admin', Password: 'admin'");
+            }
+           
         }
 
         private void LoopThroughList<T>(List<T> list, bool showNrs = false)
@@ -84,7 +108,7 @@ namespace CheckInProgram
                     Console.WriteLine(item);
                 }
             }
-            
+
         }
 
         private void GetTimeStamps(string query)
@@ -92,7 +116,7 @@ namespace CheckInProgram
             List<TimeStamp> timeStamps = timeStampPersister.GetObjects(query);
             LoopThroughList(timeStamps);
 
-        }   
+        }
         private void ViewUserTimeStamps()
         {
             string userName = GetInput("Which user's timestamps do you want to see?");
@@ -103,7 +127,7 @@ namespace CheckInProgram
 
         private void ViewTimeStampsOfDate()
         {
-           
+
             string date = GetInput("What day's timestamps do you want to see?"); //TODO Check that only YYYY-mm-dd is entered
 
             ViewTimeStampsBetweenTimeSpans(DateTime.Parse(date), DateTime.Parse(date).AddHours(23).AddMinutes(59));
@@ -140,7 +164,7 @@ namespace CheckInProgram
             {
                 Console.WriteLine("1. My timestamps\n2. All timestamps\n3. Timestamps on day\n4. Timestamps between two dates\n5. Other users timespans\n6. Go back");
 
-                int choice = InputHandler.GetInt();
+                int choice = GetNumberInput("");
 
                 switch (choice)
                 {
@@ -151,10 +175,10 @@ namespace CheckInProgram
                     case 5: ViewUserTimeStamps(); break;
                     case 6: return;
                     default: Console.WriteLine("Invalid input"); break;
-                        
+
                 }
             }
-           
+
 
         }
 
@@ -185,7 +209,7 @@ namespace CheckInProgram
         private void ViewAllUsers()
         {
             List<User> users = userPersister.GetObjects();
-           
+
             LoopThroughList(users);
 
             if (IS_ADMIN)
@@ -195,11 +219,11 @@ namespace CheckInProgram
         private void EditUsers()
         {
             Console.WriteLine("1. Edit user\n2. Go back");
-            int choice = InputHandler.GetInt();
+            int choice = GetNumberInput("");
 
             switch (choice)
             {
-                case 1: EditUser();  break;
+                case 1: EditUser(); break;
                 case 2: return;
             }
         }
@@ -210,6 +234,7 @@ namespace CheckInProgram
 
             return id;
         }
+
         private void DeleteUser(User user)
         {
             string answer = GetInput("Are you sure? Y/N");
@@ -228,21 +253,22 @@ namespace CheckInProgram
             string id = ChooseUser();
 
             User user = userPersister.GetObject($"\"Id\":\"{id}\"");
-            if(user == null)
+
+            if (user == null)
             {
                 Console.WriteLine("User does not exist.");
                 return;
             }
             else
             {
-               
+
                 bool keepEditing = true;
 
                 while (keepEditing)
                 {
                     Console.WriteLine($"What do you want to do with {user.UserName}?");
                     Console.WriteLine("1. Edit username\n2. Edit password\n3. Edit roles\n4. Delete User\n5. Save\n6. Return without saving");
-                    int choice = InputHandler.GetInt();
+                    int choice = GetNumberInput("");
 
                     switch (choice)
                     {
@@ -250,13 +276,13 @@ namespace CheckInProgram
                         case 2: user.Password = GetInput("New password"); break;
                         case 3:
                             {
-                                if(!user.UserRoles.Contains(UserRole.Admin))
+                                if (!user.UserRoles.Contains(UserRole.Admin))
                                     Console.WriteLine("1. Make Admin");
                                 else
                                     Console.WriteLine("1. Remove Admin-role");
 
                                 Console.WriteLine("2. Return");
-                                int choice2 = InputHandler.GetInt();
+                                int choice2 = GetNumberInput("");
 
                                 switch (choice2)
                                 {
@@ -272,35 +298,64 @@ namespace CheckInProgram
                                                 user.UserRoles.Remove(UserRole.Admin);
                                                 Console.WriteLine("User is no longer admin");
                                             }
-                                        }break;
+                                        }
+                                        break;
                                     case 2: break;
                                     default: break;
-                                } break;
-                               
+                                }
+                                break;
+
                             }
                         case 4: DeleteUser(user); return;
                         case 5: userPersister.UpdateObject(user, $"\"Id\":\"{user.Id}\""); Console.WriteLine("User saved"); keepEditing = false; break;
                         case 6: keepEditing = false; break;
-                        default: break; 
-                    } 
+                        default: break;
+                    }
                 }
-              
+
             }
+        }
+
+        public User GetUser(string userName)
+        {
+            return userPersister.GetObject($"\"UserName\":\"{userName}\"");
         }
         public User CreateUser()
         {
-            string userName = GetInput("Username");
-            string password = GetInput("Password");
-            string password2 = GetInput("Confirm password");
+            User createdUser;
 
-            if (password.Equals(password2))
+            string userName;
+            while (true)
             {
-                User user = new User(userName, password);
-                userPersister.SaveObject(user);
-                return user;
+                userName = GetInput("Username");
+                if (GetUser(userName) != null)
+                {
+                    Console.WriteLine("Username already exists, try again");
+                    continue;
+                }
+                break;
+
             }
 
-            throw new Exception();
+            while (true)
+            {
+                string password = GetInput("Password");
+                string password2 = GetInput("Confirm password");
+
+                if (password.Equals(password2))
+                {
+                    createdUser = new User(userName, password);
+                    userPersister.SaveObject(createdUser);
+                    break;
+                }
+
+                Console.WriteLine("Passwords do not match, try again.");
+            }
+
+            Console.Clear();
+
+            return createdUser;
+
         }
         public void TryToLogin()
         {
@@ -328,11 +383,55 @@ namespace CheckInProgram
             Console.Clear();
 
         }
+
+        public int GetNumberInput(string command, ConsoleColor color = ConsoleColor.Green)
+        {
+            ChangeTextColor(color);
+            if (!string.IsNullOrEmpty(command))
+                Console.WriteLine($"{command}:");
+
+            int input;
+
+            while (true)
+            {
+                try
+                {
+                    input = InputHandler.GetInt();
+                    break;
+                }
+                catch (InvalidInputException)
+                {
+                    Console.WriteLine("Invalid input, try again.");
+                    Console.WriteLine(command);
+                }
+
+            }
+
+            return input;
+        }
+
         public string GetInput(string command, ConsoleColor color = ConsoleColor.Green, string pattern = "")
         {
             ChangeTextColor(color);
             Console.WriteLine($"{command}:");
-            return InputHandler.GetString("");
+            string input;
+
+            while (true)
+            {
+                try
+                {
+                    input = InputHandler.GetString(pattern);
+                    break;
+                }
+                catch (InvalidInputException)
+                {
+                    Console.WriteLine("Invalid input, try again.");
+                    Console.WriteLine(command);
+                }
+
+            }
+
+            return input;
         }
 
 

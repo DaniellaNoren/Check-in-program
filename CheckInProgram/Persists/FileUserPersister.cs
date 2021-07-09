@@ -13,7 +13,7 @@ namespace CheckInProgram.Persists
             string jsonString = FileSaver.GetLineFromFile(identifier, FILE_NAME);
 
             if (string.IsNullOrEmpty(jsonString))
-                return new User("", "");
+                return null;
 
             return (User) ObjectParser.GetObjectFromJson<User>(jsonString);
         }
